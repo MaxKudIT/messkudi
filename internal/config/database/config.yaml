@@ -1,0 +1,4 @@
+database:
+  name: messagerDB
+  password: 32
+  user: max
