@@ -8,12 +8,6 @@ type database struct {
 	connection string
 }
 
-type DatabaseConfig struct {
-	DBNAME     string
-	DBPASSWORD string
-	DBUSER     string
-}
-
 func NewDatabase(connection string) *database {
 	return &database{connection: connection}
 }

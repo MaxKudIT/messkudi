@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/MaxKudIT/messkudi/internal/domain/user"
-	"github.com/MaxKudIT/messkudi/internal/dto"
+	"github.com/MaxKudIT/messkudi/internal/domain"
+	"github.com/MaxKudIT/messkudi/internal/transport/web/dto"
 	"github.com/google/uuid"
 	"log/slog"
 	"os"
@@ -12,11 +12,11 @@ import (
 type usmock struct {
 }
 
-func (us *usmock) GetUserById(id uuid.UUID) (user.User, error) {
-	return user.User{}, nil
+func (us *usmock) GetUserById(id uuid.UUID) (domain.User, error) {
+	return domain.User{}, nil
 }
 
-func (us *usmock) SaveUser(userp user.User) error {
+func (us *usmock) SaveUser(userp domain.User) error {
 	return nil
 }
 

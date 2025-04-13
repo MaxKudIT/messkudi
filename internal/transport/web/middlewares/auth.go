@@ -2,32 +2,28 @@ package middlewares
 
 import (
 	"github.com/MaxKudIT/messkudi/internal/utils"
-	"log"
+	"net/http"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func ValidateTokenAuthorization(c *gin.Context) {
-	if err := godotenv.Load("../../.env"); err != nil {
-		log.Fatal(err.Error())
-		return
-	}
+
 	fulltoken := c.GetHeader("Authorization")
 	if fulltoken == "" {
 
-		c.String(403, "Нет прав доступав!")
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "no token found"})
 		return
 	}
 	token := strings.TrimPrefix(fulltoken, "Bearer ")
-	_, err := utils.ValidateToken(token, os.Getenv("JWT_SECRET"))
+	claims, err := utils.ValidateToken(token, os.Getenv("SECRET_KEY"))
 	if err != nil {
-
-		c.String(403, err.Error())
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "token is expired or not valid format"})
 		return
 	}
-
+	user_id := claims["user_id"]
+	c.Set("user_id", user_id)
 	c.Next()
 }

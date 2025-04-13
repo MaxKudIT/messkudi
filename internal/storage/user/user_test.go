@@ -3,8 +3,8 @@ package user
 import (
 	"database/sql"
 	"fmt"
+	"github.com/MaxKudIT/messkudi/internal/domain"
 	"github.com/MaxKudIT/messkudi/internal/domain/auth"
-	"github.com/MaxKudIT/messkudi/internal/domain/user"
 	"github.com/MaxKudIT/messkudi/internal/storage"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -96,7 +96,7 @@ func Test_userStorage_SaveUser(t *testing.T) {
 	if godotenv.Load("../../../.env") != nil {
 		return
 	}
-	var userp user.User = user.User{
+	var userp domain.User = domain.User{
 		Name:        "Maxos",
 		Password:    "3211",
 		LastName:    "Kud",
@@ -112,7 +112,7 @@ func Test_userStorage_SaveUser(t *testing.T) {
 	}
 
 	type args struct {
-		userf user.User
+		userf domain.User
 	}
 	tests := []struct {
 		name    string

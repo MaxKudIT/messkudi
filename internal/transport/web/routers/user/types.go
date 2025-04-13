@@ -1,11 +1,16 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"context"
+	"github.com/gin-gonic/gin"
+)
 
 type userhandlers interface {
-	GetUser(c *gin.Context)
-	CreateUser(c *gin.Context)
-	DeleteUser(c *gin.Context)
+	UserById(ctx context.Context, c *gin.Context)
+	CreateUser(ctx context.Context, c *gin.Context)
+	UserByPhoneNumber(ctx context.Context, c *gin.Context)
+	UserIsExistsByPhoneNumber(ctx context.Context, c *gin.Context)
+	DeleteUser(ctx context.Context, c *gin.Context)
 }
 
 type userrouter struct {

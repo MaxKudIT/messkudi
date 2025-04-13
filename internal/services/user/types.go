@@ -1,15 +1,19 @@
 package user
 
 import (
-	"github.com/MaxKudIT/messkudi/internal/domain/user"
+	"context"
+	"github.com/MaxKudIT/messkudi/internal/domain"
+	"github.com/MaxKudIT/messkudi/internal/transport/web/dto"
 	"github.com/google/uuid"
 	"log/slog"
 )
 
 type userStorage interface {
-	GetUserById(id uuid.UUID) (user.User, error)
-	SaveUser(userp user.User) error
-	DeleteUser(id uuid.UUID) error
+	UserById(ctx context.Context, id uuid.UUID) (dto.UserDTO, error)
+	SaveUser(ctx context.Context, userp domain.User) error
+	UserByPhoneNumber(ctx context.Context, phoneNumber string) (dto.UserDTO, error)
+	UserIsExistsByPhoneNumber(ctx context.Context, phoneNumber string) (bool, error)
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 type userService struct {

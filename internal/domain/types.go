@@ -1,7 +1,6 @@
-package user
+package domain
 
 import (
-	"github.com/MaxKudIT/messkudi/internal/domain/auth"
 	"github.com/google/uuid"
 )
 
@@ -13,5 +12,24 @@ type User struct {
 	PhoneNumber string `validate:"required,regexp=^\\+?[1-9]\\d{1,14}$"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
-	Token       auth.Token
+	Token       Token
+	ExpiredAt   string
+}
+
+type Token struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type AccessTokenUpdateData struct {
+	Id           uuid.UUID
+	AccessToken  string
+	RefreshToken string
+}
+
+type AuthData struct {
+	Id       uuid.UUID
+	Name     string
+	Password string
+	Token    Token
 }
