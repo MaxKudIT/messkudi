@@ -5,11 +5,11 @@ import (
 	"log/slog"
 )
 
-type chatMessageStorage struct {
+type groupMessageStorage struct {
 	db *sql.DB
 	l  *slog.Logger
 }
 
-func New(db *sql.DB, l *slog.Logger) *chatMessageStorage {
-	return &chatMessageStorage{db: db, l: l}
+func New(db *sql.DB, l *slog.Logger) *groupMessageStorage {
+	return &groupMessageStorage{db: db, l: l}
 }

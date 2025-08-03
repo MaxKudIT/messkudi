@@ -3,22 +3,22 @@ package chat_message
 import (
 	"context"
 	"github.com/MaxKudIT/messkudi/internal/domain/messages"
-	"github.com/MaxKudIT/messkudi/internal/transport/web/dto/chat_message_dto"
+	"github.com/MaxKudIT/messkudi/internal/transport/web/dto/group_message_dto"
 	"github.com/google/uuid"
 	"log/slog"
 )
 
-type chatMessageService interface {
-	MessageById(ctx context.Context, id uuid.UUID) (chat_message_dto.ChatMessageDTODetailsServer, error)
-	CreateMessage(ctx context.Context, message messages.ChatMessage) error
+type groupMessageService interface {
+	MessageById(ctx context.Context, id uuid.UUID) (group_message_dto.GroupMessageDTODetailsServer, error)
+	CreateMessage(ctx context.Context, message messages.GroupMessage) error
 	DeleteMessage(ctx context.Context, id uuid.UUID) error
 }
 
-type chatMessageHandler struct {
-	cmsv chatMessageService
+type groupMessageHandler struct {
+	gmsv groupMessageService
 	l    *slog.Logger
 }
 
-func New(cmsv chatMessageService, l *slog.Logger) *chatMessageHandler {
-	return &chatMessageHandler{cmsv: cmsv, l: l}
+func New(gmsv groupMessageService, l *slog.Logger) *groupMessageHandler {
+	return &groupMessageHandler{gmsv: gmsv, l: l}
 }

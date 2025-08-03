@@ -11,12 +11,39 @@ type userRouter interface {
 type authRouter interface {
 	AuthRegrouters(ctx context.Context, gr *gin.RouterGroup)
 }
-
-type server struct {
-	ur userRouter
-	ar authRouter
+type wsRouter interface {
+	WebsocketRegrouters(ctx context.Context, gr *gin.RouterGroup)
+}
+type contactRouter interface {
+	ContactRegRouters(ctx context.Context, router *gin.RouterGroup)
 }
 
-func New(ur userRouter, ar authRouter) *server {
-	return &server{ur: ur, ar: ar}
+type chatRouter interface {
+	ChatRegRouters(ctx context.Context, router *gin.RouterGroup)
+}
+
+type groupRouter interface {
+	GroupRegRouters(ctx context.Context, router *gin.RouterGroup)
+}
+
+type chatMessageRouter interface {
+	ChatMessageRegRouters(ctx context.Context, router *gin.RouterGroup)
+}
+type groupMessageRouter interface {
+	GroupMessageRegRouters(ctx context.Context, router *gin.RouterGroup)
+}
+
+type server struct {
+	ur  userRouter
+	ar  authRouter
+	wr  wsRouter
+	cr  contactRouter
+	cmr chatMessageRouter
+	gmr groupMessageRouter
+	chr chatRouter
+	gr  groupRouter
+}
+
+func New(ur userRouter, ar authRouter, wr wsRouter, cr contactRouter, cmr chatMessageRouter, gmr groupMessageRouter, chr chatRouter, gr groupRouter) *server {
+	return &server{ur: ur, ar: ar, wr: wr, cr: cr, cmr: cmr, gmr: gmr, chr: chr, gr: gr}
 }

@@ -13,6 +13,7 @@ type userservice interface {
 	UserById(ctx context.Context, id uuid.UUID) (dto.UserDTO, error)
 	UserByPhoneNumber(ctx context.Context, phoneNumber string) (dto.UserDTO, error)
 	UserIsExistsByPhoneNumber(ctx context.Context, phoneNumber string) (bool, error)
+	UserDataForChatHeader(ctx context.Context, id uuid.UUID) (dto.ChatHeader, error)
 	//UpdateUser(c *gin.Context)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }

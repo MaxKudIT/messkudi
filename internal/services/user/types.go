@@ -13,7 +13,9 @@ type userStorage interface {
 	SaveUser(ctx context.Context, userp domain.User) error
 	UserByPhoneNumber(ctx context.Context, phoneNumber string) (dto.UserDTO, error)
 	UserIsExistsByPhoneNumber(ctx context.Context, phoneNumber string) (bool, error)
+	UserIdByPhoneNumber(ctx context.Context, phoneNumber string) (uuid.UUID, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
+	UserDataForChatHeader(ctx context.Context, id uuid.UUID) (dto.ChatHeader, error)
 }
 
 type userService struct {

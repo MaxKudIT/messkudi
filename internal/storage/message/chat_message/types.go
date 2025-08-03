@@ -1,15 +1,15 @@
-package message
+package chat_message
 
 import (
 	"database/sql"
 	"log/slog"
 )
 
-type messageStorage struct {
+type chatMessageStorage struct {
 	db *sql.DB
 	l  *slog.Logger
 }
 
-func New(db *sql.DB, l *slog.Logger) *messageStorage {
-	return &messageStorage{db: db, l: l}
+func New(db *sql.DB, l *slog.Logger) *chatMessageStorage {
+	return &chatMessageStorage{db: db, l: l}
 }

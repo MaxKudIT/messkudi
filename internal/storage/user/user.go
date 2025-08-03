@@ -12,8 +12,8 @@ import (
 
 func (us *userStorage) UserById(ctx context.Context, id uuid.UUID) (dto.UserDTO, error) {
 	userp := dto.UserDTO{}
-	const GET_USER_QUERY = "SELECT name, lastname, password, phonenumber FROM users WHERE id = $1"
-	if err := us.db.QueryRowContext(ctx, GET_USER_QUERY, id).Scan(&userp.Name, &userp.LastName, &userp.Password, &userp.PhoneNumber); err != nil {
+	const GET_USER_QUERY = "SELECT name, password, phonenumber, color FROM users WHERE id = $1"
+	if err := us.db.QueryRowContext(ctx, GET_USER_QUERY, id).Scan(&userp.Name, &userp.Password, &userp.PhoneNumber, &userp.Color); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			us.l.Error("user not found", "error", err)
@@ -35,9 +35,9 @@ func (us *userStorage) UserById(ctx context.Context, id uuid.UUID) (dto.UserDTO,
 
 func (us *userStorage) SaveUser(ctx context.Context, userp domain.User) error {
 
-	const CREATE_USER_QUERY = "INSERT INTO users (name, lastname, password, phonenumber, id, createdat, updatedat, refreshtoken, expiredat) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+	const CREATE_USER_QUERY = "INSERT INTO users (name, password, phonenumber, id, createdat, updatedat, color) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
-	if _, err := us.db.ExecContext(ctx, CREATE_USER_QUERY, userp.Name, userp.LastName, userp.Password, userp.PhoneNumber, userp.Id, userp.CreatedAt, userp.UpdatedAt, userp.Token.RefreshToken, userp.ExpiredAt); err != nil {
+	if _, err := us.db.ExecContext(ctx, CREATE_USER_QUERY, userp.Name, userp.Password, userp.PhoneNumber, userp.Id, userp.CreatedAt, userp.UpdatedAt, userp.Color); err != nil {
 		switch {
 		case errors.Is(err, context.Canceled):
 			us.l.Warn("Query cancelled", "error", err)
@@ -53,6 +53,29 @@ func (us *userStorage) SaveUser(ctx context.Context, userp domain.User) error {
 	us.l.Info("Successfully created user", "id", userp.Id)
 	return nil
 }
+
+//func (us *userStorage) UpdateUser(ctx context.Context, userup *domain.UserUpdate) error {
+//	const UPDATE_USER_QUERY = "UPDATE users SET "
+//
+//	if _, err := us.db.ExecContext(ctx, DELETE_USER_QUERY, id); err != nil {
+//		switch {
+//		case errors.Is(err, sql.ErrNoRows):
+//			us.l.Error("user not found", "error", err)
+//			return err
+//		case errors.Is(err, context.Canceled):
+//			us.l.Warn("Query cancelled", "error", err)
+//			return err
+//		case errors.Is(err, context.DeadlineExceeded):
+//			us.l.Warn("Query timed out", "error", err)
+//			return err
+//		default:
+//			us.l.Error("Query failed", "error", err)
+//			return err
+//		}
+//	}
+//	us.l.Info("Successfully deleted user", "id", id)
+//	return nil
+//}
 
 func (us *userStorage) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	const DELETE_USER_QUERY = "DELETE FROM users WHERE id = $1"
@@ -80,7 +103,7 @@ func (us *userStorage) DeleteUser(ctx context.Context, id uuid.UUID) error {
 func (us *userStorage) UserByPhoneNumber(ctx context.Context, phoneNumber string) (dto.UserDTO, error) {
 	userp := dto.UserDTO{PhoneNumber: phoneNumber}
 	const GET_USER_QUERY = "SELECT name, lastname, password FROM users WHERE phonenumber = $1"
-	if err := us.db.QueryRowContext(ctx, GET_USER_QUERY, phoneNumber).Scan(&userp.Name, &userp.LastName, &userp.Password); err != nil {
+	if err := us.db.QueryRowContext(ctx, GET_USER_QUERY, phoneNumber).Scan(&userp.Name, &userp.Password); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			us.l.Error("user not found", "error", err)
@@ -99,10 +122,34 @@ func (us *userStorage) UserByPhoneNumber(ctx context.Context, phoneNumber string
 	us.l.Info("Successfully got user", "phonenumber", phoneNumber)
 	return userp, nil
 }
+
+func (us *userStorage) UserIdByPhoneNumber(ctx context.Context, phoneNumber string) (uuid.UUID, error) {
+	var id uuid.UUID
+	const GetUserIdQuery = "SELECT id FROM users WHERE phonenumber = $1"
+	if err := us.db.QueryRowContext(ctx, GetUserIdQuery, phoneNumber).Scan(&id); err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			us.l.Error("user not found", "error", err)
+			return uuid.Nil, err
+		case errors.Is(err, context.Canceled):
+			us.l.Warn("Query cancelled", "error", err)
+			return uuid.Nil, err
+		case errors.Is(err, context.DeadlineExceeded):
+			us.l.Warn("Query timed out", "error", err)
+			return uuid.Nil, err
+		default:
+			us.l.Error("Query failed", "error", err)
+			return uuid.Nil, err
+		}
+	}
+	us.l.Info("Successfully got user id", "phonenumber", phoneNumber)
+	return id, nil
+}
+
 func (us *userStorage) UserIsExistsByPhoneNumber(ctx context.Context, phoneNumber string) (bool, error) {
 	var isExists bool
-	const GET_USER_QUERY = "SELECT EXISTS (SELECT 1 FROM users WHERE phonenumber = $1);"
-	if err := us.db.QueryRowContext(ctx, GET_USER_QUERY, phoneNumber).Scan(&isExists); err != nil {
+	const UserIsExists = "SELECT EXISTS (SELECT 1 FROM users WHERE phonenumber = $1);"
+	if err := us.db.QueryRowContext(ctx, UserIsExists, phoneNumber).Scan(&isExists); err != nil {
 		switch {
 		case errors.Is(err, context.Canceled):
 			us.l.Warn("Query cancelled", "error", err)
@@ -130,3 +177,27 @@ func (us *userStorage) UserIsExistsByPhoneNumber(ctx context.Context, phoneNumbe
 //			log.Print(exceptions.UpdateUserExc().Error())
 //		}
 //	}
+
+func (us *userStorage) UserDataForChatHeader(ctx context.Context, id uuid.UUID) (dto.ChatHeader, error) {
+	var chat dto.ChatHeader
+	const GetChatHeaderQuery = "SELECT name, color from users where id = $1"
+	if err := us.db.QueryRowContext(ctx, GetChatHeaderQuery, id).Scan(&chat.Name, &chat.Color); err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			us.l.Error("user not found", "error", err)
+			return dto.ChatHeader{}, err
+		case errors.Is(err, context.Canceled):
+			us.l.Warn("Query cancelled", "error", err)
+			return dto.ChatHeader{}, err
+		case errors.Is(err, context.DeadlineExceeded):
+			us.l.Warn("Query timed out", "error", err)
+			return dto.ChatHeader{}, err
+		default:
+			us.l.Error("Query failed", "error", err)
+			return dto.ChatHeader{}, err
+		}
+	}
+	us.l.Info("Successfully got user", "id", id)
+	chat.Id = id
+	return chat, nil
+}

@@ -6,9 +6,9 @@ import (
 	"github.com/MaxKudIT/messkudi/internal/domain"
 	"github.com/MaxKudIT/messkudi/internal/transport/web/dto"
 	"github.com/MaxKudIT/messkudi/internal/utils"
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"os"
+	"time"
 )
 
 func (as *authService) UserAuthData(ctx context.Context, usercr dto.UserCredentials) (domain.AuthData, error) {
@@ -26,39 +26,38 @@ func (as *authService) UserAuthData(ctx context.Context, usercr dto.UserCredenti
 		as.l.Error("create access token failed")
 		return domain.AuthData{}, err
 	}
-	authdata.Token.AccessToken = acctoken
-
+	newRt := utils.CreateRefreshToken()
+	hashRt := utils.HashRefreshToken(newRt)
+	expired := time.Now().Add(time.Hour * 24 * 30)
+	authdata.Token = domain.Token{
+		AccessToken:  acctoken,
+		RefreshToken: newRt,
+	}
+	if err := as.ast.UserUpdateRefreshToken(ctx, hashRt, expired, usercr.PhoneNumber); err != nil {
+		as.l.Error("update refresh token failed")
+		return domain.AuthData{}, err
+	}
 	as.l.Info("Successfully got authdata", "id", authdata.Id)
 	return authdata, nil
 }
 
-func (as *authService) AccessTokenUpdate(ctx context.Context, c *gin.Context, rt *dto.RefreshTokenDTO) (domain.AccessTokenUpdateData, error) {
-	user_id, exists := c.Get("user_id")
-	if !exists {
-		as.l.Error("Userid not found in gin context")
-		return domain.AccessTokenUpdateData{}, errors.New("Userid not found in gin context")
-	}
-	user_id_orig, err := uuid.Parse(user_id.(string))
+func (as *authService) AccessTokenUpdate(ctx context.Context, dd dto.UpdateTokenDTO) (domain.AccessTokenUpdateData, error) {
+	idp, err := uuid.Parse(dd.Id)
 	if err != nil {
-		as.l.Error("Userid not found in gin context")
-		return domain.AccessTokenUpdateData{}, errors.New("Userid not found in gin context")
+		return domain.AccessTokenUpdateData{}, err
 	}
-	data, err := as.ast.AccessTokenUpdate(ctx, user_id_orig)
+	data, err := as.ast.AccessTokenUpdate(ctx, idp)
 	if err != nil {
 		as.l.Error("Error while updating access token", "error", err)
 		return domain.AccessTokenUpdateData{}, err
 	}
-	if !(data.RefreshToken == rt.RefreshToken) {
-		as.l.Error("refreshtoken not valid", "error", err)
-		return domain.AccessTokenUpdateData{}, err
+	if err := utils.CompareRefreshToken([]byte(data.RefreshToken), []byte(dd.Rt.RefreshToken)); err != nil {
+		as.l.Error("refreshtoken not valid")
+		return domain.AccessTokenUpdateData{}, errors.New("refreshtoken not valid")
 	}
 	as.l.Info("Successfully updated access token", "id", data.Id)
 
-	if err != nil {
-		as.l.Error("Invalid user_id type in gin context: expected string")
-		return domain.AccessTokenUpdateData{}, errors.New("Invalid user_id type in gin context: expected string")
-	}
-	acctoken, err := utils.CreateAccessToken(os.Getenv("SECRET_KEY"), user_id_orig)
+	acctoken, err := utils.CreateAccessToken(os.Getenv("SECRET_KEY"), idp)
 	data.AccessToken = acctoken
 	return data, nil
 }

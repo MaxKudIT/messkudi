@@ -66,29 +66,21 @@ func main() {
 	us := user2.New(ust, lserv)
 	ush := user3.New(us, lhand)
 	usr := user4.New(ush)
-	ast := auth.New(db, lstor) //auth
-	as := auth2.New(ast, lserv)
 
 	sst := session.New(db, lstor) //session
 	ss := session2.New(sst, lserv)
 
+	ast := auth.New(db, lstor) //auth
+	as := auth2.New(ast, lserv)
 	ash := auth4.New(as, ss, lhand) //auth
 	asr := auth3.New(ash)
 
 	cst := contact.New(db, lstor) //contact
 	cs := contact2.New(cst, lserv)
-	ch := contact3.New(cs, lhand)
+	ch := contact3.New(cs, us, lhand)
 	cr := contact4.New(ch)
 
-	wsh := websocket.New(cs, lhand) //websocket
-	wsr := websocket2.New(wsh)
-
-	chst := chat.New(db, lstor) //chat
-	csv := chat2.New(chst, lserv)
-	chh := chat3.New(csv, lhand)
-	chr := chat4.New(chh)
-
-	grst := group.New(db, lstor)
+	grst := group.New(db, lstor) //group
 	gsv := group2.New(grst, lserv)
 	gh := group3.New(gsv, lhand)
 	gr := group4.New(gh)
@@ -102,6 +94,14 @@ func main() {
 	gmsv := group_message2.New(gms, lserv)
 	gmh := group_message3.New(gmsv, lhand)
 	gmr := group_message4.New(gmh)
+
+	chst := chat.New(db, lstor) //chat
+	csv := chat2.New(chst, cms, lserv)
+	chh := chat3.New(csv, cmsv, us, lhand)
+	chr := chat4.New(chh)
+
+	wsh := websocket.New(cs, cms, chst, lhand) //websocket
+	wsr := websocket2.New(wsh)
 
 	server := server.New(usr, asr, wsr, cr, cmr, gmr, chr, gr) //server
 	router := server.Create()

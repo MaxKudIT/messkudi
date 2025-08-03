@@ -2,14 +2,15 @@ package chat_message
 
 import (
 	"context"
+	"github.com/MaxKudIT/messkudi/internal/transport/web/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
-func (cmr *chatMessageRouter) ChatMessageRegRouters(ctx context.Context, router *gin.RouterGroup) {
-	Contact := router.Group("/chatmessages")
+func (gmr *groupMessageRouter) GroupMessageRegRouters(ctx context.Context, router *gin.RouterGroup) {
+	GroupMessage := router.Group("/gm")
 	{
-		Contact.GET("/:id", func(c *gin.Context) { cmr.cmh.MessageById(c.Request.Context(), c) }) //middle
-		Contact.POST("/create", func(c *gin.Context) { cmr.cmh.CreateMessage(c.Request.Context(), c) })
-		Contact.DELETE("/delete", func(c *gin.Context) { cmr.cmh.DeleteMessage(c.Request.Context(), c) })
+		GroupMessage.GET("/:id", middlewares.ValidateTokenAuthorization, func(c *gin.Context) { gmr.gmh.MessageById(c.Request.Context(), c) }) //middle
+		GroupMessage.POST("/create", middlewares.ValidateTokenAuthorization, func(c *gin.Context) { gmr.gmh.CreateMessage(c.Request.Context(), c) })
+		GroupMessage.DELETE("/delete", middlewares.ValidateTokenAuthorization, func(c *gin.Context) { gmr.gmh.DeleteMessage(c.Request.Context(), c) })
 	}
 }

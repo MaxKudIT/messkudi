@@ -8,6 +8,8 @@ import (
 type authHandler interface {
 	UserAuthData(ctx context.Context, c *gin.Context)
 	AccessTokenUpdate(ctx context.Context, c *gin.Context)
+	Logout(ctx context.Context, c *gin.Context)
+	IsAuth(ctx context.Context, c *gin.Context)
 }
 
 type authRouter struct {
