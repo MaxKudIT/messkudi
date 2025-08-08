@@ -47,7 +47,7 @@ func (cmh *chatMessageHandler) CreateMessage(ctx context.Context, c *gin.Context
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	message := chat_message_dto.ToDomain(time.Now(), time.Now(), nil, messagedtoP)
 
 	if err := cmh.cmsv.CreateMessage(ctxnew, message); err != nil {
@@ -75,6 +75,29 @@ func (cmh *chatMessageHandler) AllMessages(ctx context.Context, c *gin.Context) 
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"messages": messages})
+}
+
+func (cmh *chatMessageHandler) UpdateReadAtMessage(ctx context.Context, c *gin.Context) {
+	ctxnew, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+
+	var object struct {
+		Tm time.Time
+		Id uuid.UUID
+	}
+
+	if err := c.ShouldBindJSON(&object); err != nil {
+		cmh.l.Error("Error parsing object updateReadAtMessage", "error", err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := cmh.cmsv.UpdateReadAtMessage(ctxnew, object.Tm, object.Id); err != nil {
+		cmh.l.Error("Error parsing object updateReadAtMessage", "error", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+	}
+	cmh.l.Info("Successfully updated readat chat message")
+	c.JSON(http.StatusCreated, gin.H{"messageid": object.Id})
 }
 
 func (cmh *chatMessageHandler) DeleteMessage(ctx context.Context, c *gin.Context) {

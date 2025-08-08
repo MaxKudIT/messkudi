@@ -7,14 +7,13 @@ import (
 )
 
 type GroupDTOClient struct {
-	Title     string
-	AvatarURL string
-	Ids       []uuid.UUID
+	Title string
+	Ids   []uuid.UUID
 }
 
 type GroupDTODetailsServer struct {
 	Title       string
-	AvatarURL   string
+	Color       string
 	Description string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -25,7 +24,6 @@ func ToDomainGroup(groupid uuid.UUID, createdat time.Time, updatedat time.Time, 
 	return groups.Group{
 		Id:        groupid,
 		Title:     dto.Title,
-		AvatarURL: dto.AvatarURL,
 		CreatedAt: createdat,
 		UpdatedAt: updatedat,
 	}

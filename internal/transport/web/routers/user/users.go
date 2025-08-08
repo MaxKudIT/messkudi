@@ -13,6 +13,7 @@ func (ur *userrouter) UserRegrouters(ctx context.Context, gr *gin.RouterGroup) {
 
 		Users.POST("/registration", func(c *gin.Context) { ur.uh.CreateUser(c.Request.Context(), c) })
 		Users.GET("/isExists/:phonenumber", func(c *gin.Context) { ur.uh.UserIsExistsByPhoneNumber(c.Request.Context(), c) })
+		Users.GET("/test", func(c *gin.Context) { c.JSON(200, gin.H{"message": 5}) })
 		UsersAuth := Users.Group("")
 		UsersAuth.Use(middlewares.ValidateTokenAuthorization)
 		{

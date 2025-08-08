@@ -6,12 +6,14 @@ import (
 	"github.com/MaxKudIT/messkudi/internal/transport/web/dto/chat_message_dto"
 	"github.com/google/uuid"
 	"log/slog"
+	"time"
 )
 
 type chatMessageService interface {
 	MessageById(ctx context.Context, id uuid.UUID) (chat_message_dto.ChatMessageDTODetailsServer, error)
 	AllMessages(ctx context.Context, chatid uuid.UUID) ([]chat_message_dto.ChatMessageDTODetailsServer, error)
 	CreateMessage(ctx context.Context, message messages.ChatMessage) error
+	UpdateReadAtMessage(ctx context.Context, time time.Time, messageId uuid.UUID) error
 	DeleteMessage(ctx context.Context, id uuid.UUID) error
 }
 

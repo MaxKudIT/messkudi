@@ -16,7 +16,7 @@ type ChatMessageStorage interface {
 	AllMessages(ctx context.Context, chatid uuid.UUID) ([]chat_message_dto.ChatMessageDTODetailsServer, error)
 	SaveMessage(ctx context.Context, message messages.ChatMessage) error
 	UpdateMessage(ctx context.Context, message chat_message_dto.ChatMessageDTOClientParsing) error
-	UpdateReadAtMessage(ctx context.Context, time time.Time) error
+	UpdateReadAtMessage(ctx context.Context, time time.Time, messageId uuid.UUID) error
 	AllUnreadMessages(ctx context.Context, chatId uuid.UUID) ([]uuid.UUID, error)
 	DeleteMessage(ctx context.Context, id uuid.UUID) error
 }

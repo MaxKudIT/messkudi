@@ -7,6 +7,7 @@ import (
 	"github.com/MaxKudIT/messkudi/internal/domain/messages"
 	"github.com/MaxKudIT/messkudi/internal/transport/web/dto/chat_message_dto"
 	"github.com/google/uuid"
+	"time"
 )
 
 func (cmsv *chatMessageService) MessageById(ctx context.Context, id uuid.UUID) (chat_message_dto.ChatMessageDTODetailsServer, error) {
@@ -39,6 +40,15 @@ func (cmsv *chatMessageService) CreateMessage(ctx context.Context, message messa
 		return err
 	}
 	cmsv.l.Info("Successfully created chat message", "id", message.Id)
+	return nil
+}
+
+func (cmsv *chatMessageService) UpdateReadAtMessage(ctx context.Context, time time.Time, messageId uuid.UUID) error {
+	if err := cmsv.cms.UpdateReadAtMessage(ctx, time, messageId); err != nil {
+		cmsv.l.Error("Error updating readat chat message", "error", err)
+		return err
+	}
+	cmsv.l.Info("Successfully updating readat chat message", "id", messageId)
 	return nil
 }
 

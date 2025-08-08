@@ -11,8 +11,8 @@ import (
 
 func (gs *groupStorage) GroupById(ctx context.Context, id uuid.UUID) (dto.GroupDTODetailsServer, error) {
 	var group dto.GroupDTODetailsServer
-	const GET_GROUP_QUERY = "SELECT title, description, avatarurl, createdat, updatedat, group_count from groups where id = $1"
-	if err := gs.db.QueryRowContext(ctx, GET_GROUP_QUERY, id).Scan(&group.Title, &group.Description, &group.AvatarURL, &group.CreatedAt, &group.UpdatedAt, &group.GroupCount); err != nil {
+	const GET_GROUP_QUERY = "SELECT title, description, color, createdat, updatedat, group_count from groups where id = $1"
+	if err := gs.db.QueryRowContext(ctx, GET_GROUP_QUERY, id).Scan(&group.Title, &group.Description, &group.Color, &group.CreatedAt, &group.UpdatedAt, &group.GroupCount); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			gs.l.Error("group not found", "error", err)

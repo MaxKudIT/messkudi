@@ -152,10 +152,10 @@ func (cms *chatMessageStorage) UpdateMessage(ctx context.Context, message chat_m
 	return nil
 }
 
-func (cms *chatMessageStorage) UpdateReadAtMessage(ctx context.Context, time time.Time) error {
-	const UpdateChatMessageQuery = "UPDATE chat_messages SET read_at = $1 WHERE chat_id = $2"
+func (cms *chatMessageStorage) UpdateReadAtMessage(ctx context.Context, time time.Time, messageId uuid.UUID) error {
+	const UpdateChatMessageQuery = "UPDATE chat_messages SET read_at = $1 WHERE id = $2"
 
-	if _, err := cms.db.ExecContext(ctx, UpdateChatMessageQuery, time); err != nil {
+	if _, err := cms.db.ExecContext(ctx, UpdateChatMessageQuery, time, messageId); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			cms.l.Error("message not found", "error", err)
